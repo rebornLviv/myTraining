@@ -1,18 +1,20 @@
 import React from 'react'
 import {View,Text,StyleSheet, ImageBackground, Button, Image, KeyboardAvoidingView, KeyboardAvoidingViewComponent}  from 'react-native'
+import { TextInput } from 'react-native-gesture-handler'
 import LoginButton from '../../components/LoginButton'
 import FacebookButton from '../../components/FacebookButton'
 import { Formik } from 'formik'
 import { Input} from 'galio-framework'
 import * as yup from 'yup'
 import { useDispatch } from 'react-redux'
-import { login } from '../../store/actions/user'
-const LoginScreen = ({navigation}) => {
+import { login, register } from '../../store/actions/user'
+const RegisterScreen = props => {
+    const dispatch = useDispatch()
     const loginValidation = yup.object({
         username: yup.string().required(),
-        password: yup.string().required() 
+        password: yup.string().required() ,
+        email:yup.string().required().email()
     })
-    const dispatch = useDispatch()
     return (
 <KeyboardAvoidingView behavior="height"   style={{flex:1}}>
         <ImageBackground source={require('../../assets/main.png')} style={styles.screen} resizeMode='cover'>
@@ -27,18 +29,19 @@ const LoginScreen = ({navigation}) => {
                 initialValues={
                     {
                         username:'',
-                        password:''
+                        password:'',
+                        email:''
                     }
                 }
                 onSubmit={
-                 async   (values)=>{
-                        await dispatch(login(values.username,values.password))
-                        .then()
-                        .catch(
-                            (error)=>{
-                                console.log('error',error)
-                            }
-                        )
+                  async   (values)=>{
+                   await    dispatch(register(values.email,values.username,values.password))
+                   .then()
+                   .catch(
+                       error => {
+                           console.log('errpr',error.response)
+                       }
+                   )
                     }
                 }
                 validationSchema={loginValidation}
@@ -51,6 +54,14 @@ const LoginScreen = ({navigation}) => {
                     <View style={styles.inputContainer}>
                     
                     <View style={styles.castInpt}>
+                    <Input  
+                  style={styles.input}
+                   placeholder="Email " 
+                   onChangeText={handleChange('email')}
+                   onBlur={handleBlur('email')}
+                   />
+                   
+                   {errors.email && touched.email? <Text style={styles.errorText} >{errors.email}</Text> : null }
                  <Input  
                   style={styles.input} 
                   placeholder="Username " 
@@ -72,14 +83,13 @@ const LoginScreen = ({navigation}) => {
                    />
                    
                    {errors.password && touched.password? <Text style={styles.errorText} >{errors.password}</Text> : null }
+                  
                  </View>
                  
                  </View>
                  <View style={styles.btnContainer}> 
                  <LoginButton disabled={!isValid} onLogin={handleSubmit} />
-                 <FacebookButton onFbLogin={()=>{
-                     navigation.navigate('Register')
-                 }}/>
+                 <FacebookButton onFbLogin={()=>{}}/>
                  </View>
                  </View>
 
@@ -112,7 +122,7 @@ screen:{
 },
 inputContainer:{
 width: 294,
-height:125,
+height:180,
 alignItems:'center',
 marginBottom:20,
 marginBottom:40
@@ -149,10 +159,10 @@ btn:{
 
 },header:{
     width:291,
-    height:185,
+    height:200,
     alignItems:'center',
     marginTop:20,
-    marginBottom:115
+    marginBottom:50
     
 
 },
@@ -176,7 +186,6 @@ main:{
 castInpt:{
 
     borderBottomColor:'#fff',
-    marginBottom:10,
     alignItems:'center'
 },
 imgE:{
@@ -194,7 +203,7 @@ imgP:{
 
 })
 
-export default LoginScreen;
+export default RegisterScreen;
 
 
 
